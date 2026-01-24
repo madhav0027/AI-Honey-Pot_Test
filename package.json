@@ -1,0 +1,19 @@
+{
+  "name": "honeypotai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start":"node index.js",
+    "dev":"nodemon index.js"
+  },
+  "keywords": [
+    "honeypot",
+    "scam-detection",
+    "bot",
+    "security",
+    "fraud"
+  ],
+  "author": "Madhav Pathak <himadhavpathak@gmail.com>",
+  "license": "MIT"
+}
