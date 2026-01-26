@@ -1,31 +1,39 @@
 import axios from 'axios'
 import { conversation } from './aiagent/conversation';
+import OpenAi from "openai"
 
 export async function runagent(systemprompt:string,userprompt:string) {
     
     const maxwaits = 8000;
     const start = Date.now()
 
+
+    const APIKEY = process.env.APIKEY;
+
+    const openai = new OpenAi({
+          baseURL: "https://openrouter.ai/api/v1",
+         apiKey:APIKEY,
+         defaultHeaders: {
+                    'HTTP-Referer':"http://localhost", //for openrouter
+                    'X-Title':"Test App" //for openrouter
+        },
+    })
+
     while(true){
-        const res = await axios.post("http://localhost:11434/api/chat",{
-            model:'dolphin-mistral',
-            stream:false,
+        const res = await openai.chat.completions.create({
+            model:"xiaomi/mimo-v2-flash:free",
             messages:[
                 {role:"system",content:systemprompt},
                 {role:"user",content:userprompt}
-            ]},{
-                headers:{
-                    'Content-Type':'application/json'
-                },
-            }
-        )
+            ]                            
+        })
+                    
+        const data = res;
         
-        const data = res.data;
-        
-        console.log(data);      
+        console.log(res);      
 
-    if(data.done_reason === "stop"){
-        return data;
+    if(data.choices[0].finish_reason === "stop"){
+        return data.choices[0].message;
         
     }
 

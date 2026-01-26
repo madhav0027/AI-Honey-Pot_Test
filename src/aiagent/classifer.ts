@@ -18,8 +18,9 @@ export async function classifer(message:string) {
         }
         
         If output is not JSON, it will be rejected.
+        KEEP DATA BETWEEN CURLY BRACES
         `
         const result = await runagent(systemprompt,JSON.stringify(message));
-        return result
+        return result.content
 }
     

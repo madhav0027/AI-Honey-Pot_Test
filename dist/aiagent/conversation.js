@@ -1,24 +1,19 @@
-import { runagent } from "../llm.setup";
-import { classifer } from "./classifer"
-
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.conversation = conversation;
+const llm_setup_1 = require("../llm.setup");
 const HOLD_REPLIES = [
     "Please Wait",
     "Checking now",
     "Network issue",
     "Trying again",
     "Explain again"
-]
-
-function getreply () {
+];
+function getreply() {
     return HOLD_REPLIES[Math.floor(Math.random() * HOLD_REPLIES.length)];
 }
-
-
-export async function conversation(message:string) {
-
-        const systemprompt:string = 
-        `
+async function conversation(message) {
+    const systemprompt = `
         You are a real human chat user.
 
         You are NOT an AI.
@@ -49,32 +44,27 @@ export async function conversation(message:string) {
 
         Your goal is to keep the conversation going naturally.
 
-        `
-    
-        const conversations = await runagent(systemprompt,message)
-        const conversationsdata = conversations;
-        console.log("conversation",conversationsdata.content)
-        return conversationsdata
-    }
-    // const systemprompt:string =
-    // `   You are a scam-bait conversation system.
-    //     Your goal is to waste time and keep the sender engaged.
-    
-    //     Rules:
-    //     - Return ONLY valid JSON
-    //     - No explanations, no markdown
-    //     - Strictly Answer in 12–15 words
-    //     - Sound human, casual, slightly distracted
-    //     - Ask innocent follow-up questions
-    //     - Never give real personal or financial details
-        
-    //     Remeber : 
-    //     - confidence > 0.6 
-    //     - is_scam == true
-    
-    //     Schema:
-    //     {
-    //     "smalltalk": ""
-    //     }
-    //     `
-    
+        `;
+    const conversations = await (0, llm_setup_1.runagent)(systemprompt, message);
+    const conversationsdata = conversations;
+    console.log("conversation", conversationsdata.content);
+    return conversationsdata;
+}
+// const systemprompt:string =
+// `   You are a scam-bait conversation system.
+//     Your goal is to waste time and keep the sender engaged.
+//     Rules:
+//     - Return ONLY valid JSON
+//     - No explanations, no markdown
+//     - Strictly Answer in 12–15 words
+//     - Sound human, casual, slightly distracted
+//     - Ask innocent follow-up questions
+//     - Never give real personal or financial details
+//     Remeber : 
+//     - confidence > 0.6 
+//     - is_scam == true
+//     Schema:
+//     {
+//     "smalltalk": ""
+//     }
+//     `
