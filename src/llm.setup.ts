@@ -22,7 +22,7 @@ export async function runagent(systemprompt:string,userprompt:string) {
 
     while(true){
         const res = await openai.chat.completions.create({
-            model:"xiaomi/mimo-v2-flash:free",
+            model:"tngtech/deepseek-r1t-chimera:free",
             messages:[
                 {role:"system",content:systemprompt},
                 {role:"user",content:userprompt}
