@@ -9,12 +9,13 @@ export async function runagent(systemprompt:string,userprompt:string) {
 
 
     const APIKEY = process.env.APIKEY;
+    const referer = process.env.APP_URL;
 
     const openai = new OpenAi({
           baseURL: "https://openrouter.ai/api/v1",
          apiKey:APIKEY,
          defaultHeaders: {
-                    'HTTP-Referer':"http://localhost", //for openrouter
+                    'HTTP-Referer':referer, //for openrouter
                     'X-Title':"Test App" //for openrouter
         },
     })
