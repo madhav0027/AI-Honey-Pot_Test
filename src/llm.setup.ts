@@ -22,7 +22,7 @@ export async function runagent(systemprompt:string,userprompt:string) {
 
     while(true){
         const res = await openai.chat.completions.create({
-            model:"tngtech/deepseek-r1t-chimera:free",
+            model:"mistralai/mistral-small-3.1-24b-instruct:free",
             messages:[
                 {role:"system",content:systemprompt},
                 {role:"user",content:userprompt}
@@ -31,8 +31,7 @@ export async function runagent(systemprompt:string,userprompt:string) {
                     
         const data = res;
         
-        console.log(res);      
-
+        console.log(data)
     if(data.choices[0].finish_reason === "stop"){
         return data.choices[0].message;
         

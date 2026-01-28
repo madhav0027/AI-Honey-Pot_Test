@@ -9,6 +9,8 @@ export async function classifer(message:string) {
     - Return ONLY valid JSON
     - No explanation
     - No markdown
+    - ONLY JSON 
+    - NO EXPLANANTION
     
     Schema:
     {   
