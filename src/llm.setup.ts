@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { conversation } from './aiagent/conversation';
-import OpenAi from "openai"
+import {Groq} from 'groq-sdk';
 
 export async function runagent(systemprompt:string,userprompt:string) {
     
@@ -11,24 +11,26 @@ export async function runagent(systemprompt:string,userprompt:string) {
     const APIKEY = process.env.APIKEY;
     const referer = process.env.APP_URL;
 
-    const openai = new OpenAi({
-          baseURL: "https://openrouter.ai/api/v1",
-         apiKey:APIKEY,
-         defaultHeaders: {
-                    'HTTP-Referer':referer, //for openrouter
-                    'X-Title':"Test App" //for openrouter
-        },
-    })
-
+    const groq = new Groq({apiKey:APIKEY});
+    
     while(true){
-        const res = await openai.chat.completions.create({
-            model:"mistralai/mistral-small-3.1-24b-instruct:free",
-            messages:[
-                {role:"system",content:systemprompt},
-                {role:"user",content:userprompt}
-            ]                            
-        })
-                    
+        const res = await groq.chat.completions.create({
+        "messages": [
+            {
+            "role": "user",
+            "content":userprompt
+            },
+            {
+                "role":"system",
+                "content":systemprompt
+            }
+        ],
+        "model": "openai/gpt-oss-120b",
+        "temperature": 1,
+        "stream": false,
+        "reasoning_effort": "medium",
+        });
+
         const data = res;
         
         console.log(data)

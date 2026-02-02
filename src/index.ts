@@ -31,8 +31,9 @@ app.post('/message',async(req:Request,res:Response) => {
 
     console.log(message);
     const classified = await classifer(message);
-    if(classified != null){
-        const scamdata = JSON.parse(classified)
+    console.log(classified)
+    if(classified.content != null){
+        const scamdata = JSON.parse(classified.content)
         const reportdata = new Report({isscam:scamdata.is_scam,confidence:scamdata.confidence})
         await reportdata.save()
         const conver = await conversation(message);

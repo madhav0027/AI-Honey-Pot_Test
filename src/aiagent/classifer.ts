@@ -11,6 +11,7 @@ export async function classifer(message:string) {
     - No markdown
     - ONLY JSON 
     - NO EXPLANANTION
+    - NO reasoning
     
     Schema:
     {   
@@ -23,6 +24,6 @@ export async function classifer(message:string) {
         KEEP DATA BETWEEN CURLY BRACES
         `
         const result = await runagent(systemprompt,JSON.stringify(message));
-        return result.content
+        return result
 }
     

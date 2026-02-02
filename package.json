@@ -16,7 +16,11 @@
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "grok-sdk": "^0.0.1-security",
+    "groq": "^5.7.0",
+    "groq-sdk": "^0.37.0",
     "mongoose": "^9.1.5",
+    "ollama": "^0.6.3",
     "openai": "^6.16.0"
   },
   "devDependencies": {
