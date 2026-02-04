@@ -32,26 +32,41 @@ app.post('/message',async(req:Request,res:Response) => {
 
     console.log(message);
     const classified = await classifer(message);
-    console.log(classified)
+    // console.log(classified)
     if(classified.content != null){
         const scamdata = JSON.parse(classified.content)
-        if(scamdata.is_scam){
-            const reportdata = new Report({isscam:scamdata.is_scam,confidence:scamdata.confidence})
-            await reportdata.save();
-        }
+        const report = new Report({isscam:scamdata.is_scam,scam_type:scamdata.scam_type,extractedintel:[]})
         const conver = await conversation(message);
-        const latestReport = await Report.findOne()
-            .where({isscam:true})
-            .sort({ createdAt: -1 });
         if(conver.content != null){
             const aireply = await JSON.parse(conver.content) 
-            if(scamdata.confidence > 0.6 && scamdata.is_scam == true){
-                if(message.includes("upi") || message.includes("pin") || message.includes("link") || message.includes("account")){          
+            if(scamdata.is_scam == true){
+                if(message.includes("upi") || message.includes("pin") || message.includes("link") || message.includes("account") || message.includes("http")){          
                     const rep = await generateReport(message)
+                    if(rep.content){
+                        const reportdata = JSON.parse(rep.content)
+                        report.extractedintel.push({
+                            upi_id:reportdata.upi_id,
+                            bank_account:reportdata.bank_account,
+                            phising_link:reportdata.phishing_link
+                        })
+                        await report.save()
+                    }
                 }
             }
-            console.log("aireply",aireply)
-            res.json({reply:aireply.reply,isscam:scamdata.is_scam ? latestReport?.isscam : '',confidence:scamdata.is_scam ? latestReport?.confidence : ''})
+            const latestReport = await Report.findOne()
+                .where({isscam:true})
+                .sort({ createdAt: -1 });
+            // console.log("aireply",aireply)
+            res.json({
+                agent_response:aireply.reply,
+                isscam:scamdata.is_scam ? latestReport?.isscam : '',
+                scam_type:scamdata.is_scam ? latestReport?.scam_type : '',
+                extractedintel:{
+                    upi_id:scamdata.is_scam ? latestReport?.extractedintel[0].upi_id : null,
+                    bank_account:scamdata.is_scam ? latestReport?.extractedintel[0].bank_account : null,   
+                    phishing_link:scamdata.is_scam ? latestReport?.extractedintel[0].phising_link:null                
+                }
+            })
         }
     }
 

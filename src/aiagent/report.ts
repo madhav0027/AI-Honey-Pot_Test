@@ -1,16 +1,27 @@
 import { runagent } from "../llm.setup";
 
 export async function generateReport(data:any) {
-  const systemPrompt = `
-You are a cybercrime report generator.
+const systemPrompt = `
+You are an AI agent extracting scam intelligence from a conversation with a scammer.
 
-Return ONLY valid JSON:
+Task:
+- Analyze the provided scammer message or conversation.
+- Extract ONLY the following, if present:
+  - UPI ID
+  - Bank account details (account number, IFSC if available)
+  - Phishing or malicious links
+
+Rules:
+- Return ONLY valid JSON.
+- If a field is not found, set it to null.
+- Do NOT hallucinate or guess values.
+- Do NOT include explanations or extra text.
+
+Output format:
 {
-  "scam_type": "",
-  "confidence": 0,
-  "extracted_data": {},
-  "summary": "",
-  "conversation": []
+  "upi_id": null,
+  "bank_account": null,
+  "phishing_link": null
 }
 `;
 
