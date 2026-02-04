@@ -7,6 +7,7 @@ import { generateReport } from "./aiagent/report";
 import cors from 'cors'
 import { database } from "./db/db";
 import Report from "./models/report";
+import axios from "axios";
 
 dotenv.config();
 
@@ -27,20 +28,38 @@ app.get("/",(req:Request,res:Response) => {
 })
 
 app.post('/message',async(req:Request,res:Response) => {
-    const {message} = await req.body;
-    let alert = "";
+    
+    const apiKey = req.headers["x-api-key"];    
+    if (apiKey !== process.env.API_KEY) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { sessionId, message, conversationHistory, metadata } = req.body;    
+    if (!sessionId || !message?.text) {
+      return res.status(400).json({ error: "Invalid payload" });
+    }
 
-    console.log(message);
+    // console.log(message);
+    const text = message.text.toLowerCase();
     const classified = await classifer(message);
     // console.log(classified)
     if(classified.content != null){
         const scamdata = JSON.parse(classified.content)
-        const report = new Report({isscam:scamdata.is_scam,scam_type:scamdata.scam_type,extractedintel:[]})
-        const conver = await conversation(message);
-        if(conver.content != null){
+        let report = await Report.findOne({sessionId})
+        if(!report){
+            report = new Report({sessionId:sessionId,isscam:scamdata.is_scam,
+                scam_type:scamdata.scam_type,
+                extractedintel:[],
+                totalMessages:0,
+                finalCallbackSent:false})
+        }
+        report.totalMessages += 1;
+        const conver = await conversation(message,conversationHistory,metadata);
+        if(!conver.content){
+         return res.json({ status: "success", reply: "Sorry can't talk right now." });
+        }
             const aireply = await JSON.parse(conver.content) 
             if(scamdata.is_scam == true){
-                if(message.includes("upi") || message.includes("pin") || message.includes("link") || message.includes("account") || message.includes("http")){          
+                if(text.includes("upi") || text.includes("pin") || text.includes("link") || text.includes("account") || text.includes("http")){          
                     const rep = await generateReport(message)
                     if(rep.content){
                         const reportdata = JSON.parse(rep.content)
@@ -53,21 +72,44 @@ app.post('/message',async(req:Request,res:Response) => {
                     }
                 }
             }
-            const latestReport = await Report.findOne()
-                .where({isscam:true})
-                .sort({ createdAt: -1 });
+
+            if(report.isscam &&
+                report.totalMessages >= 10 
+                &&  report.extractedintel.length > 0 
+                && !report.finalCallbackSent
+            ){
+                await axios.post(
+                    "https://hackathon.guvi.in/api/updateHoneyPotFinalResult",
+                    {
+                        sessionId:report.sessionId,
+                        scamDetected:true,
+                        totalMessageExchange:report.totalMessages,
+                         extractedIntelligence: {
+                            bankAccounts: report.extractedintel
+                            .map(i => i.bank_account)
+                            .filter(Boolean),
+                            upiIds: report.extractedintel
+                            .map(i => i.upi_id)
+                            .filter(Boolean),
+                            phishingLinks: report.extractedintel
+                            .map(i => i.phishing_link)
+                            .filter(Boolean),  phoneNumbers: [],
+                        suspiciousKeywords: ["urgent", "verify", "account blocked"]
+                    },
+                    agentNotes: "Scammer used urgency and payment redirection tactics"
+                    },
+                    {timeout:5000}
+                )
+
+                report.finalCallbackSent =true
+            }
+            await report.save()
+
             // console.log("aireply",aireply)
             res.json({
-                agent_response:aireply.reply,
-                isscam:scamdata.is_scam ? latestReport?.isscam : '',
-                scam_type:scamdata.is_scam ? latestReport?.scam_type : '',
-                extractedintel:{
-                    upi_id:scamdata.is_scam ? latestReport?.extractedintel[0].upi_id : null,
-                    bank_account:scamdata.is_scam ? latestReport?.extractedintel[0].bank_account : null,   
-                    phishing_link:scamdata.is_scam ? latestReport?.extractedintel[0].phising_link:null                
-                }
+                status:"success",
+                reply:aireply.reply
             })
-        }
     }
 
 })
