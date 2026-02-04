@@ -2,19 +2,6 @@ import { runagent } from "../llm.setup";
 import { classifer } from "./classifer"
 
 
-const HOLD_REPLIES = [
-    "Please Wait",
-    "Checking now",
-    "Network issue",
-    "Trying again",
-    "Explain again"
-]
-
-function getreply () {
-    return HOLD_REPLIES[Math.floor(Math.random() * HOLD_REPLIES.length)];
-}
-
-
 export async function conversation(message:string) {
 
         const systemprompt:string = 
@@ -53,28 +40,5 @@ export async function conversation(message:string) {
     
         const conversations = await runagent(systemprompt,message)
         const conversationsdata = conversations;
-        console.log("conversation",conversationsdata.content)
         return conversationsdata
     }
-    // const systemprompt:string =
-    // `   You are a scam-bait conversation system.
-    //     Your goal is to waste time and keep the sender engaged.
-    
-    //     Rules:
-    //     - Return ONLY valid JSON
-    //     - No explanations, no markdown
-    //     - Strictly Answer in 12–15 words
-    //     - Sound human, casual, slightly distracted
-    //     - Ask innocent follow-up questions
-    //     - Never give real personal or financial details
-        
-    //     Remeber : 
-    //     - confidence > 0.6 
-    //     - is_scam == true
-    
-    //     Schema:
-    //     {
-    //     "smalltalk": ""
-    //     }
-    //     `
-    

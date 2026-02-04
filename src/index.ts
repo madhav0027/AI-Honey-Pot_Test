@@ -48,11 +48,10 @@ app.post('/message',async(req:Request,res:Response) => {
             if(scamdata.confidence > 0.6 && scamdata.is_scam == true){
                 if(message.includes("upi") || message.includes("pin") || message.includes("link") || message.includes("account")){          
                     const rep = await generateReport(message)
-                    
                 }
             }
             console.log("aireply",aireply)
-            res.json({reply:aireply.reply,isscam:scamdata.is_scam ? latestReport?.isscam : ''})
+            res.json({reply:aireply.reply,isscam:scamdata.is_scam ? latestReport?.isscam : '',confidence:scamdata.is_scam ? latestReport?.confidence : ''})
         }
     }
 
