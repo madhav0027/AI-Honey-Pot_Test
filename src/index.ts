@@ -17,7 +17,7 @@ let arr:any = [] ;
 database();
 
 app.use(cors({
-    origin:"https://madhav0027.github.io/HoneypotaiFrontend/"
+    origin:"*"
 }))
 app.use(express.json())
 app.get("/",(req:Request,res:Response) => {
@@ -28,27 +28,31 @@ app.get("/",(req:Request,res:Response) => {
 
 app.post('/message',async(req:Request,res:Response) => {
     const {message} = await req.body;
+    let alert = "";
 
     console.log(message);
     const classified = await classifer(message);
     console.log(classified)
     if(classified.content != null){
         const scamdata = JSON.parse(classified.content)
-        const reportdata = new Report({isscam:scamdata.is_scam,confidence:scamdata.confidence})
-        await reportdata.save()
+        if(scamdata.is_scam){
+            const reportdata = new Report({isscam:scamdata.is_scam,confidence:scamdata.confidence})
+            await reportdata.save();
+        }
         const conver = await conversation(message);
-        const latestReport = await Report.findOne().sort({ createdAt: -1 });
+        const latestReport = await Report.findOne()
+            .where({isscam:true})
+            .sort({ createdAt: -1 });
         if(conver.content != null){
             const aireply = await JSON.parse(conver.content) 
             if(scamdata.confidence > 0.6 && scamdata.is_scam == true){
                 if(message.includes("upi") || message.includes("pin") || message.includes("link") || message.includes("account")){          
                     const rep = await generateReport(message)
-                    arr.push(rep);    
-                    console.log("rep",rep)
+                    
                 }
             }
             console.log("aireply",aireply)
-            res.json({reply:aireply.reply,report:latestReport})
+            res.json({reply:aireply.reply,isscam:scamdata.is_scam ? latestReport?.isscam : ''})
         }
     }
 
