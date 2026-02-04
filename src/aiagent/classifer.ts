@@ -1,6 +1,6 @@
 import { runagent } from "../llm.setup";
 
-export async function classifer(message:string) {
+export async function classifer(message:any) {
     
     const systemprompt:string =
     `You are a scam detection system.
@@ -23,7 +23,7 @@ export async function classifer(message:string) {
         If output is not JSON, it will be rejected.
         KEEP DATA BETWEEN CURLY BRACES
         `
-        const result = await runagent(systemprompt,JSON.stringify(message));
+        const result = await runagent(systemprompt,message);
         return result
 }
     
