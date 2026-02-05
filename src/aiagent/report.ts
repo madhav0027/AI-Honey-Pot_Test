@@ -19,9 +19,9 @@ Rules:
 
 Output format:
 {
-  "upi_id": null,
-  "bank_account": null,
-  "phishing_link": null
+  "upi_id": "",
+  "bank_account": "",
+  "phishing_link": ""
 }
 `;
 
