@@ -61,7 +61,7 @@ app.post('/message',async(req:Request,res:Response) => {
             const aireply = await JSON.parse(conver.content) 
             if(scamdata.is_scam == true){
                 if(text.includes("upi") || text.includes("pin") || text.includes("link") || text.includes("account") || text.includes("http")){          
-                    const rep = await generateReport(message)
+                    const rep = await generateReport(message,conversationHistory,metadata)
                     if(rep.content){
                         const reportdata = JSON.parse(rep.content)
                         report.extractedintel.push({

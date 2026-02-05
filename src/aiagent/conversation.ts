@@ -45,19 +45,26 @@ export async function conversation(message: any={}, conversationHistory: any[], 
     Your goal is to keep the conversation going naturally and gather clarity.
   `;
 
-  // Correctly map and type the conversation history
-  const messages = [
-    ...(conversationHistory ?? []).map((m) => {
-      return {
-        role: (m.sender === "scammer" ? "user" : "assistant") as "user" | "assistant", 
-        content: m.text ?? "", 
-      };
-    }),
+    const conversationsHistory = conversationHistory ?? [];  // Ensure it's an array
+
+    // Build the messages array, adding the new user message
+    const messages = [
+    ...conversationsHistory.map((m, index) => {
+        // Ensure we add messages only if content exists
+        if (m.text) {
+        return {
+            role: m.sender === "scammer" ? "user" : "assistant",
+            content: m.text,  // Use m.text if it exists
+        };
+        } else {
+        return null;  // Skip if there's no content
+        }
+    }).filter(Boolean),  // Filter out any null values
     {
-      role: "user",
-      content: message.text, 
+        role: "user",
+        content: message.text ?? "",  // Make sure message.text is not undefined
     },
-  ];
+    ];
 
   // Call runagent with the messages array
   const conversations = await runagent(systemprompt,messages);  // Pass only messages here
