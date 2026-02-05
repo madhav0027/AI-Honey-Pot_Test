@@ -45,10 +45,13 @@ export async function conversation(message: string, conversationHistory: any[], 
     { role: "system", content: systemprompt },
     ...conversationHistory.map((m: any) => ({
       role: m.sender === "scammer" ? "user" : "assistant",
-      content: m.text ?? "",
+      content: m.text ?? "",  // Ensure text is a string
     })),
-    { role: "user", content: message },
+    { role: "user", content: message },  // Add the new user message
   ];
+
+  // Check the structure of the messages array to ensure it's correct
+  console.log("Messages:", messages);
 
   // Call the agent to get a response
   const conversations = await runagent(systemprompt, messages);

@@ -10,18 +10,23 @@ export async function runagent(systemprompt: string, messages: any[]) {
 
     const groq = new Groq({ apiKey: APIKEY });
 
+    // Ensure messages is passed correctly as an array
+    if (!Array.isArray(messages)) {
+        throw new Error("Messages should be an array");
+    }
+
     while (true) {
         const res = await groq.chat.completions.create({
-            "messages": messages,
-            "model": "openai/gpt-oss-120b",
-            "temperature": 1,
-            "stream": false,
-            "reasoning_effort": "medium",
+            messages: messages,  // Pass the array of message objects
+            model: "openai/gpt-oss-120b",
+            temperature: 1,
+            stream: false,
+            reasoning_effort: "medium",
         });
 
         const data = res;
 
-        console.log(data);
+        console.log("Response from Groq:", data);
 
         if (data.choices[0].finish_reason === "stop") {
             return data.choices[0].message;
