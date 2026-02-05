@@ -45,7 +45,7 @@ export async function conversation(message:string,conversationHistory:any[],meta
 
     
         const messages = [
-            ...conversationHistory.map(m =>( {
+            ...conversationHistory?.map(m =>( {
                 role:m.sender === "scammer" ? "user" : "assistant",
                 content:m.text
             })),{

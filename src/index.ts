@@ -30,7 +30,7 @@ app.get("/",(req:Request,res:Response) => {
 app.post('/message',async(req:Request,res:Response) => {
     
     const apiKey = req.headers["x-api-key"];    
-    if (apiKey !== process.env.API_KEY) {
+    if (apiKey !== process.env.APIKEY) {
         return res.status(401).json({ error: "Unauthorized" });
     }
     const { sessionId, message, conversationHistory, metadata } = req.body;    
