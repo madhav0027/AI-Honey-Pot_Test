@@ -2,7 +2,7 @@ import axios from 'axios'
 import { conversation } from './aiagent/conversation';
 import {Groq} from 'groq-sdk';
 
-export async function runagent(systemprompt:string,userprompt:any) {
+export async function runagent(systemprompt:string,userprompt:any[]) {
     
     const maxwaits = 8000;
     const start = Date.now()

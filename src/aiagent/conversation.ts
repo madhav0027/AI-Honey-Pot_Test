@@ -2,7 +2,7 @@ import { runagent } from "../llm.setup";
 import { classifer } from "./classifer"
 
 
-export async function conversation(message:any={},conversationHistory:any[],metadata:any={}) {
+export async function conversation(message:string,conversationHistory:any[],metadata:any={}) {
 
        const systemprompt: string = `
         You are a real human chat user.
@@ -43,15 +43,20 @@ export async function conversation(message:any={},conversationHistory:any[],meta
         Your goal is to keep the conversation going naturally and gather clarity.
         `;
 
-            
+    function safeContent(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return "";
+  return JSON.stringify(value);
+}
+
         const messages = [
         ...(conversationHistory ?? []).map(m => ({
             role: m.sender === "scammer" ? "user" : "assistant",
-            content: (m.text ?? "")
+            content: safeContent(m.text)
         })),
         {
             role: "user",
-            content: (message ?? "")
+            content: safeContent(message)
         }
         ];
 
