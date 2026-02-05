@@ -1,6 +1,6 @@
 import { runagent } from "../llm.setup";
 
-export async function classifer(message:any) {
+export async function classifer(message:any={},conversationHistory: any[], metadata: any = {}) {
     
     const systemprompt:string =
     `You are a scam detection system.
@@ -23,7 +23,21 @@ export async function classifer(message:any) {
         If output is not JSON, it will be rejected.
         KEEP DATA BETWEEN CURLY BRACES
         `
-        const result = await runagent(systemprompt,message);
+
+         const messages = [
+    ...(conversationHistory ?? []).map((m) => {
+      return {
+        role: (m.sender === "scammer" ? "user" : "assistant") as "user" | "assistant", 
+        content: m.text ?? "", 
+      };
+    }),
+    {
+      role: "user",
+      content: message.text, 
+    },
+  ];
+  console.log(messages)
+        const result = await runagent(systemprompt,messages);
         return result
 }
     

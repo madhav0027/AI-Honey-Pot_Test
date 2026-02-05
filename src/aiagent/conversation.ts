@@ -1,6 +1,11 @@
 import { runagent } from "../llm.setup";
 
-export async function conversation(message: string, conversationHistory: any[], metadata: any = {}) {
+type ChatMessage = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+export async function conversation(message: any={}, conversationHistory: any[], metadata: any = {}) {
   const systemprompt: string = `
     You are a real human chat user.
 
@@ -40,41 +45,21 @@ export async function conversation(message: string, conversationHistory: any[], 
     Your goal is to keep the conversation going naturally and gather clarity.
   `;
 
-  // Format the current message object
-  const currentMessage = {
-    sender: "user",  // Assuming the latest message is from the user
-    text: message,
-    timestamp: Date.now(),  // Use current timestamp
-  };
-
-  // Format the conversation history
-  const formattedHistory = conversationHistory.map((m: any) => ({
-    sender: m.sender === "scammer" ? "scammer" : "user", // Adjust for the sender role
-    text: m.text ?? "",
-    timestamp: m.timestamp ?? Date.now(),
-  }));
-
-  // Build the final message object for the API request
+  // Correctly map and type the conversation history
   const messages = [
-    { role: "system", content: systemprompt },
-    ...formattedHistory.map((m: any) => ({
-      role: m.sender === "scammer" ? "user" : "assistant",  // Map sender to role
-      content: m.text ?? "",  // Ensure text is a string
-    })),
-    { role: "user", content: currentMessage.text },  // Add the new user message
+    ...(conversationHistory ?? []).map((m) => {
+      return {
+        role: (m.sender === "scammer" ? "user" : "assistant") as "user" | "assistant", 
+        content: m.text ?? "", 
+      };
+    }),
+    {
+      role: "user",
+      content: message.text, 
+    },
   ];
 
-  // Debugging: Log the structure of the 'messages' array to ensure it's correct
-  console.log("Messages structure before API call:");
-  console.log(Array.isArray(messages));  // Should log: true
-  console.log(messages);  // Should show an array of message objects
-
-  // Ensure messages is an array before passing to the API
-  if (!Array.isArray(messages)) {
-    throw new Error("Messages should be an array");
-  }
-
-  // Make the API call
-  const conversations = await runagent(systemprompt, messages);
+  // Call runagent with the messages array
+  const conversations = await runagent(systemprompt,messages);  // Pass only messages here
   return conversations;
 }

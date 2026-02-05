@@ -39,8 +39,9 @@ app.post('/message',async(req:Request,res:Response) => {
     // }
 
     // console.log(message);
+
     const text = message.text.toLowerCase();
-    const classified = await classifer(message);
+    const classified = await classifer(message,conversationHistory,metadata);
     // console.log(classified)
     if(classified.content != null){
         const scamdata = JSON.parse(classified.content)
