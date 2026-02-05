@@ -1,8 +1,5 @@
 import { runagent } from "../llm.setup";
 
-// Define the correct type for the messages passed to Groq
-
-
 export async function conversation(message: string, conversationHistory: any[], metadata: any = {}) {
   const systemprompt: string = `
     You are a real human chat user.
@@ -43,13 +40,15 @@ export async function conversation(message: string, conversationHistory: any[], 
     Your goal is to keep the conversation going naturally and gather clarity.
   `;
 
-  // Correctly map and type the conversation history
-  const messages: string = [
-    ...((conversationHistory ?? []).map((m) => {
-      return `${m.sender === "scammer" ? "User" : "Assistant"}: ${m.text ?? ""}`; 
-    }) ?? []),
-    `User: ${message}`,  
-  ].join("\n"); 
+  // Build the messages array as an array of objects with 'role' and 'content'
+  const messages = [
+    { role: "system", content: systemprompt },
+    ...conversationHistory.map((m: any) => ({
+      role: m.sender === "scammer" ? "user" : "assistant",
+      content: m.text ?? "",
+    })),
+    { role: "user", content: message },
+  ];
 
   // Call the agent to get a response
   const conversations = await runagent(systemprompt, messages);
