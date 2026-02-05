@@ -2,7 +2,7 @@ import { runagent } from "../llm.setup";
 import { classifer } from "./classifer"
 
 
-export async function conversation(message:any,conversationHistory:any[],metadata:any={}) {
+export async function conversation(message:any={},conversationHistory:any[],metadata:any={}) {
 
        const systemprompt: string = `
         You are a real human chat user.
