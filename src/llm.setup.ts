@@ -43,7 +43,6 @@ export async function runagent(systemprompt:string,userprompt:any[]) {
       throw new Error("Model failed to load in time");
     }
 
-            
         await new Promise(r => setTimeout(r, 300));
 
     }

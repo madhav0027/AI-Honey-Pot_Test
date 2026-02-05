@@ -34,7 +34,7 @@ app.post('/message',async(req:Request,res:Response) => {
         return res.status(401).json({ error: "Unauthorized" });
     }
     const { sessionId, message, conversationHistory, metadata } = req.body;    
-    if (!sessionId || !message?.text) {
+    if (!sessionId || !message) {
       return res.status(400).json({ error: "Invalid payload" });
     }
 
