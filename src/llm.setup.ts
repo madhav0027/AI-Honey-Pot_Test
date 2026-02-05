@@ -16,22 +16,36 @@ export async function runagent(systemPrompt:string , userprompt:any={}) {
 
 
   while (true) {
-    const res = await groq.chat.completions.create({ 
-        "messages": [ { "role":"system", "content":systemPrompt }, 
-            { "role": "user", "content":userprompt[0]?.content } ], 
-            "model": "openai/gpt-oss-120b", 
-            "temperature": 1, "stream": false,
-         "reasoning_effort": "medium", });
+    try {
+        
+        const res = await groq.chat.completions.create({ 
+            "messages": [ { "role":"system", "content":systemPrompt }, 
+                { "role": "user", "content":userprompt[0]?.content } ], 
+                "model": "openai/gpt-oss-120b", 
+                "temperature": 1, "stream": false,
+                "reasoning_effort": "medium", });
     const data = res;
     console.log(data.choices[0].message.content);
     if (data.choices[0].finish_reason === "stop") {
-      return data.choices[0].message;
+        return data.choices[0].message;
+    }
+    } catch (error:any) {
+        if(error.response?.status === 422){
+              console.error("422 from Groq — fallback reply used");
+        return {
+            role: "assistant",
+            content: "Sorry, can’t talk right now."
+        }
     }
 
     if (Date.now() - start > maxwaits) {
-      throw new Error("Model failed to load in time");
+        return {
+        role: "assistant",
+        content: "Sorry, can’t talk right now."
+        };
     }
 
     await new Promise(r => setTimeout(r, 300));
   }
+}
 }
